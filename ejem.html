@@ -1,86 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <title>CUN EXAMENES</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" type="text/css" href="estilo-inicio.css">
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <!--Bootstrap-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-app.js"></script>
+  <!--Firebase-->
+  <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
   <script>
+    // Your web app's Firebase configuration
     var firebaseConfig = {
-      apiKey: "AIzaSyBz3aaszsHMENbwB6K4W_UckU58UZnmTXU",
-      authDomain: "safeexam-1fb08.firebaseapp.com",
-      databaseURL: "https://safeexam-1fb08.firebaseio.com",
-      projectId: "safeexam-1fb08",
-      storageBucket: "safeexam-1fb08.appspot.com",
-      messagingSenderId: "188720702021",
-      appId: "1:188720702021:web:a27b93cdb81b18a90fb92c"
+      apiKey: "AIzaSyBxQB4JPpSuCkqJ2q5D9F67uw3_pJpLZOQ",
+      authDomain: "safeexam-473f1.firebaseapp.com",
+      databaseURL: "https://safeexam-473f1.firebaseio.com",
+      projectId: "safeexam-473f1",
+      storageBucket: "safeexam-473f1.appspot.com",
+      messagingSenderId: "246900728093",
+      appId: "1:246900728093:web:78ffd8d96e26a03746c1f4"
     };
     firebase.initializeApp(firebaseConfig);
+  </script>
   </script>
   <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-firestore.js"></script>
 
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
-  <meta name="google-signin-client_id" content="CLIENT-ID-EXAMPLE-0123456789.apps.googleusercontent.com">
-
-
 </head>
 
 <body>
-  <div class="container mt-3">
-    <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand">CUN EXAMENES</a>
-      <div class="form-inline">
-        <input id="email2" type="email" placeholder="ingresa email" class="form-control form-control-sm mr-sm-2">
-        <input id="contrasena2" type="password" placeholder="ingresa contrasena"
-          class="form-control form-control-sm mr-sm-2">
-        <button class="btn btn-dark my-2 my-sm-0 btn-sm" onclick="ingreso()">Acceder</button>
+  <nav class="navbar navbar-light bg-light justify-content-center">
+    <p>CUN EXÁMENES</p>
+  </nav>
 
-        <button class="btn btn-danger my-2 my-sm-0 btn-sm ml-2" data-toggle="modal"
-          data-target="#exampleModal">Registrar</button>
-      </div>
-    </nav>
-  </div>
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Formulario de Registro</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <input id="email" type="email" placeholder="ingresa email" class="form-control">
-          <div class="mt-2"></div>
-          <input id="contrasena" type="password" placeholder="ingresa contrasena" class="form-control">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" onclick="registrar()">Guardar</button>
-          <button type="button" class="btn btn-secondary" onclick="ingresoGoogle()">Acceder con google</button>
-        </div>
-      </div>
+  <div class="container my-4">
+    <div class="text-center">
+      <button type="button" class="btn btn-success" onclick="AccederConCuentaGoogle()">Acceder con
+        Google</button>
     </div>
   </div>
 
-
-  <div id="contenido">
-  </div>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
     crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
     crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
   <script src="app.js"></script>
 </body>
