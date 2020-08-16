@@ -1,4 +1,4 @@
-function registrar(){
+/*function registrar(){
     var email = document.getElementById('email').value;
     var contrasena = document.getElementById('contrasena').value;
 
@@ -106,29 +106,25 @@ user.updateEmail("user@example.com").then(function() {
   // An error happened.
   console.log(error);
 });
-}
+}*/
 
-function ingresoGoogle() {
-    // body...  
-    if (!firebase.auth().currentUser){
-     var provider = new firebase.auth.GoogleAuthProvider();
-     provider.addScope('https://www.googleapis.com/auth/plus.login');
-     firebase.auth().signInWithPopup(provider).then(function (result) {
-        /* body... */  
-        var token = result.credential.accessToken;
-        var user = result.user;
+var provider = new firebase.auth.GoogleAuthProvider();
 
-        $('#page').css("display", "none") && $('#page2').css("display", "block");
- 
-     InicializarFireChat();
-     }).catch(function (error){
-        /* body... */ 
-        var errorCode = error.code;
-        var errorMessage=error.mesagge;
-        var email = error.email;
-        var credential=error.credential;
-     });
-    }else{
-     firebase.auth().signOut();
-    }
+function AccederConCuentaGoogle() {
+  firebase.auth().signInWithPopup(provider).then(function(result) {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = result.credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    // ...
+  }).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+  });
  }
