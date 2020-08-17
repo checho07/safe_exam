@@ -108,23 +108,134 @@ user.updateEmail("user@example.com").then(function() {
 });
 }*/
 
+/*firebase.auth().onAuthStateChanged(function (user) {
+    if (user) {
+      console.log("usuario activo")
+    } else {
+      console.log("usuario inactivo")
+}*/
+
+//CRUD con Cloud Firestore
+
+var db = firebase.firestore();
+var coleccion = "usuarios";
+var documento;
+
+function LeerDatosUsuario(documento_) {
+  let docRef = db.collection(coleccion).doc(documento_);
+  docRef.get().then(function (doc) {
+    if (doc.exists) {
+      console.log("Datos del Documento:", doc.data());
+    } else {
+      console.log("No existe el documento");
+    }
+  }).catch(function (error) {
+    console.log("Error obteniendo el documento:", error);
+  });
+}
+
+function CrearUsuario(nombre_,email_,foto_,uid_) {
+  db.collection(coleccion).add({
+    nombre: String(nombre_),
+    email: String(email_),
+    fotoURL: String(foto_),
+    UID: String(uid_)
+  })
+    .then(function (docRef) {
+      documento = docRef.id;
+      console.log("Usuario creado con ID: ", docRef.id);
+
+      //Prueba de metodo leer, actualizar y eliminar
+      LeerDatosUsuario(documento); 
+      ActualizarDatosUsuario(documento,"a","c","t","u");
+      //EliminarUsuario(documento);
+    })
+    .catch(function (error) {
+      console.error("Error agregando usuario: ", error);
+    });
+}
+
+function ActualizarDatosUsuario(documento_,nombre_,email_,foto_,uid_) {
+  let datos = db.collection(coleccion).doc(documento_);
+  return datos.update({
+    nombre: nombre_,
+    email: email_,
+    fotoURL: foto_,
+    UID: uid_
+  })
+    .then(function () {
+      console.log("Documento actualizado");
+    })
+    .catch(function (error) {
+      console.error("Error actualizando documento: ", error);
+    });
+}
+
+function EliminarUsuario(documento_) {
+  db.collection(coleccion).doc(documento_).delete().then(function () {
+    console.log("Usuario elminado");
+  }).catch(function (error) {
+    console.error("Error eliminando usuario: ", error);
+  });
+}
+
+// Varibles de acceso
+
+var user = firebase.auth().currentUser;
 var provider = new firebase.auth.GoogleAuthProvider();
+var name, email, photoUrl, emailVerified, uid;
+
+function ComprobarDominio(stringemail) {
+  if (stringemail.endsWith("@cun.edu.co")) {
+    return true;
+  }
+}
+
+//Autenticación con Google
 
 function AccederConCuentaGoogle() {
-  firebase.auth().signInWithPopup(provider).then(function(result) {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    var token = result.credential.accessToken;
-    // The signed-in user info.
-    var user = result.user;
-    // ...
-  }).catch(function(error) {
-    // Handle Errors here.
+
+  //Autorización para lectura de datos
+  //provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
+
+  //Sugiere el ingreso o registro unicamente con correos con dominio cun.edu.co
+  provider.setCustomParameters({ hd: 'cun.edu.co' });
+
+  firebase.auth().signInWithPopup(provider).then(function (result) {
+    var email = result.user.email;
+
+    if (ComprobarDominio(email) == true) {
+      var token = result.credential.accessToken;
+      name = result.user.displayName;
+      email = result.user.email;
+      photoUrl = result.user.photoURL;
+      uid = result.user.uid;
+
+      /*firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
+        console.log(idToken);
+      }).catch(function(error) {
+        // Handle error
+      });*/
+
+      //Agregar usuario a base de datos
+      CrearUsuario(name, email, result.user.photoURL, result.user.uid);
+      console.log("Correo válido, usuario creado");
+    } else {
+      alert("El correo ingresado no es de dominio @cun.edu.co. Por favor, ingrese un correo válido. Ejemplo: juan_perez@cun.edu.co");
+      var usuarioaEliminar = firebase.auth().currentUser;
+      usuarioaEliminar.delete().then(function () {
+        //Se elimina el usuario de Auth
+      }).catch(function (error) {
+      });
+    }
+
+  }).catch(function (error) {
+    // Datos de error.
     var errorCode = error.code;
     var errorMessage = error.message;
-    // The email of the user's account used.
     var email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
     var credential = error.credential;
-    // ...
+    console.log("Error de autenticación", errorMessage);
   });
- }
+}
+
