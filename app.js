@@ -1,128 +1,49 @@
-/*function registrar(){
-    var email = document.getElementById('email').value;
-    var contrasena = document.getElementById('contrasena').value;
+//Verficar si hay sesión iniciada
 
-    firebase.auth().createUserWithEmailAndPassword(email, contrasena)
-    .then(function(){
-        verificar()
-    })
-    .catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log(errorCode);
-        console.log(errorMessage );
-        // ...
-        
-      });
-}
-
-function ingreso(){
-    var email2 = document.getElementById('email2').value;
-    var contrasena2 = document.getElementById('contrasena2').value;
-
-    firebase.auth().signInWithEmailAndPassword(email2, contrasena2).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log(errorCode);
-        console.log(errorMessage );
-        // ...
-      });
-}
-
-function observador(){
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            console.log(' existe usuario activo')
-            aparece(user);
-          // User is signed in.
-          var displayName = user.displayName;
-
-          var email = user.email;
-
-            console.log('*****************');
-            console.log(user.emailVerified)
-            console.log('*****************');
-
-          var emailVerified = user.emailVerified;
-          var photoURL = user.photoURL;
-          var isAnonymous = user.isAnonymous;
-          var uid = user.uid;
-          var providerData = user.providerData;
-          // ...
-        } else {
-          // User is signed out.
-          console.log('no existe usuario activo');
-          contenido.innerHTML = `
-
-          `;
-          // ...
-        }
-      });
-}
-observador();
-
-
-function aparece(user){
-    var user = user;
-    var contenido = document.getElementById('contenido');
-    if(user.emailVerified){
-        contenido.innerHTML = `
-        <div class="container mt-5">
-        <div class="alert alert-success" role="alert">
-        <h4 class="alert-heading">Bienvenido! ${user.email} </h4>
-        <div class="pregresp">
-  <div class="pregunta">1. ¿Crees que HTML es una buena tecnología?<br />
-  </div>
-  <div class="respuestas">
-    <input type="radio" name="preg1" value="1" /> Sí<br />
-    <input type="radio" name="preg1" value="2" /> No<br />
-    <input type="radio" name="preg1" value="3" /> Ns/Nc<br />
-  </div>
-</div>
-        `;
-    }
-
-}
-
-function cerrar(){
-    firebase.auth().signOut()
-    .then(function(){
-        console.log('saliendo....')
-    })
-    .catch(function(error){
-        console.log(error)
-    })
-}
-
-function verificar(){
-    var user = firebase.auth().currentUser;
-
-user.updateEmail("user@example.com").then(function() {
-  // Update successful.
-  console.log('enviando correo');
-}).catch(function(error) {
-  // An error happened.
-  console.log(error);
+firebase.auth().onAuthStateChanged(function (user) {
+  if (user) {
+    console.log("usuario activo")
+    document.getElementById('BotonEntrar').style.visibility = 'hidden';
+    document.getElementById('BotonSalir').style.visibility = 'visible';
+  } else {
+    console.log("usuario inactivo")
+    document.getElementById('BotonSalir').style.visibility = 'hidden';
+    document.getElementById('BotonEntrar').style.visibility = 'visible';
+  }
 });
-}*/
-
-/*firebase.auth().onAuthStateChanged(function (user) {
-    if (user) {
-      console.log("usuario activo")
-    } else {
-      console.log("usuario inactivo")
-}*/
 
 //CRUD con Cloud Firestore
 
 var db = firebase.firestore();
-var coleccion = "usuarios";
+var coleccion_usuarios = "usuarios";
+var coleccion_estudiantes = "estudiantes";
 var documento;
 
+function CrearUsuario(uid_, email_, nombre_, foto_) {
+  if (nombre_ == undefined) {
+    let data = { email: email_ }
+    db.collection(coleccion_estudiantes).doc(String(uid_)).set(data);
+  }
+  else {
+    db.collection(coleccion_usuarios).add({
+      UID: String(uid_),
+      email: String(email_),
+      nombre: String(nombre_),
+      fotoURL: String(foto_)
+    })
+      .then(function (docRef) {
+        documento = docRef.id;
+        console.log("Usuario creado con ID: ", docRef.id);
+        LeerDatosUsuario(documento);
+      })
+      .catch(function (error) {
+        console.error("Error agregando usuario: ", error);
+      });
+  }
+}
+
 function LeerDatosUsuario(documento_) {
-  let docRef = db.collection(coleccion).doc(documento_);
+  let docRef = db.collection(coleccion_estudiantes).doc(documento_);
   docRef.get().then(function (doc) {
     if (doc.exists) {
       console.log("Datos del Documento:", doc.data());
@@ -134,45 +55,22 @@ function LeerDatosUsuario(documento_) {
   });
 }
 
-function CrearUsuario(nombre_,email_,foto_,uid_) {
-  db.collection(coleccion).add({
-    nombre: String(nombre_),
-    email: String(email_),
-    fotoURL: String(foto_),
-    UID: String(uid_)
-  })
-    .then(function (docRef) {
-      documento = docRef.id;
-      console.log("Usuario creado con ID: ", docRef.id);
-
-      //Prueba de metodo leer, actualizar y eliminar
-      LeerDatosUsuario(documento); 
-      ActualizarDatosUsuario(documento,"a","c","t","u");
-      //EliminarUsuario(documento);
-    })
-    .catch(function (error) {
-      console.error("Error agregando usuario: ", error);
-    });
-}
-
-function ActualizarDatosUsuario(documento_,nombre_,email_,foto_,uid_) {
-  let datos = db.collection(coleccion).doc(documento_);
+function ActualizarDatosUsuario(coleccion_, documento_, nombre_, foto_) {
+  let datos = db.collection(coleccion_).doc(documento_);
   return datos.update({
     nombre: nombre_,
-    email: email_,
     fotoURL: foto_,
-    UID: uid_
   })
     .then(function () {
-      console.log("Documento actualizado");
+      console.log("BD actualizada");
     })
     .catch(function (error) {
       console.error("Error actualizando documento: ", error);
     });
 }
 
-function EliminarUsuario(documento_) {
-  db.collection(coleccion).doc(documento_).delete().then(function () {
+function EliminarUsuario(coleccion_, documento_) {
+  db.collection(coleccion_).doc(documento_).delete().then(function () {
     console.log("Usuario elminado");
   }).catch(function (error) {
     console.error("Error eliminando usuario: ", error);
@@ -191,6 +89,18 @@ function ComprobarDominio(stringemail) {
   }
 }
 
+function VerificarExistencia(coleccion_, documento_) {
+  let docRef = db.collection(coleccion_).doc(documento_);
+  docRef.get().then(function (doc) {
+    if (doc.exists) {
+      console.log("El documento existe");
+      return true;
+    } else {
+      console.log("No existe el documento");
+    }
+  });
+}
+
 //Autenticación con Google
 
 function AccederConCuentaGoogle() {
@@ -202,25 +112,34 @@ function AccederConCuentaGoogle() {
   provider.setCustomParameters({ hd: 'cun.edu.co' });
 
   firebase.auth().signInWithPopup(provider).then(function (result) {
-    var email = result.user.email;
+    var token = result.credential.accessToken;
+    email = result.user.email;
+    name = result.user.displayName;
+    photoUrl = result.user.photoURL;
+    uid = result.user.uid;
 
     if (ComprobarDominio(email) == true) {
-      var token = result.credential.accessToken;
-      name = result.user.displayName;
-      email = result.user.email;
-      photoUrl = result.user.photoURL;
-      uid = result.user.uid;
 
-      /*firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
-        console.log(idToken);
-      }).catch(function(error) {
-        // Handle error
-      });*/
+      let EstudiantesRef = db.collection(coleccion_estudiantes).doc(result.user.uid);
+      EstudiantesRef.get().then(function (doc) {
+        if (doc.exists) {
+          //Actualizar datos de usuario que ya existe en la coleccion estudiantes
+          ActualizarDatosUsuario(coleccion_estudiantes, result.user.uid, name, photoUrl);
+          document.getElementById('BotonSalir').style.visibility = 'visible';
+          console.log("El documento ya existia y se actualizo");
 
-      //Agregar usuario a base de datos
-      CrearUsuario(name, email, result.user.photoURL, result.user.uid);
-      console.log("Correo válido, usuario creado");
-    } else {
+        } else {
+          //Agregar usuario a la coleccion usuarios
+          CrearUsuario(result.user.uid, email, name, result.user.photoURL);
+          //Agregar usuario a la coleccion estudiantes
+          CrearUsuario(result.user.uid, email);
+          document.getElementById('BotonSalir').style.visibility = 'visible';
+          console.log("Correo válido, usuario creado en las 2 colecciones");
+        }
+      });
+    }
+    
+    else {
       alert("El correo ingresado no es de dominio @cun.edu.co. Por favor, ingrese un correo válido. Ejemplo: juan_perez@cun.edu.co");
       var usuarioaEliminar = firebase.auth().currentUser;
       usuarioaEliminar.delete().then(function () {
@@ -239,3 +158,14 @@ function AccederConCuentaGoogle() {
   });
 }
 
+function SalirDeLaCuenta() {
+  firebase.auth().signOut().then(function () {
+    document.getElementById('BotonSalir').style.visibility = 'hidden';
+    document.getElementById('BotonEntrar').style.visibility = 'visible';
+    // Sign-out successful.
+  }).catch(function (error) {
+    // An error happened.
+  });
+}
+
+document.addEventListener('contextmenu', event => event.preventDefault());
