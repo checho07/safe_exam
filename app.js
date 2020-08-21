@@ -1,16 +1,20 @@
 //Verficar si hay sesión iniciada
+function redireccionar_inicio() {
+  location.href = "inicio.html";
+}
 
 firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
+    //document.getElementById('BotonEntrar').style.visibility = 'hidden';
+    setTimeout(redireccionar_inicio(), 1000);
     console.log("usuario activo")
-    document.getElementById('BotonEntrar').style.visibility = 'hidden';
-    document.getElementById('BotonSalir').style.visibility = 'visible';
+
   } else {
     console.log("usuario inactivo")
-    document.getElementById('BotonSalir').style.visibility = 'hidden';
-    document.getElementById('BotonEntrar').style.visibility = 'visible';
+    //document.getElementById('BotonEntrar').style.visibility = 'visible';
   }
 });
+
 
 //CRUD con Cloud Firestore
 
@@ -89,18 +93,6 @@ function ComprobarDominio(stringemail) {
   }
 }
 
-function VerificarExistencia(coleccion_, documento_) {
-  let docRef = db.collection(coleccion_).doc(documento_);
-  docRef.get().then(function (doc) {
-    if (doc.exists) {
-      console.log("El documento existe");
-      return true;
-    } else {
-      console.log("No existe el documento");
-    }
-  });
-}
-
 //Autenticación con Google
 
 function AccederConCuentaGoogle() {
@@ -158,14 +150,5 @@ function AccederConCuentaGoogle() {
   });
 }
 
-function SalirDeLaCuenta() {
-  firebase.auth().signOut().then(function () {
-    document.getElementById('BotonSalir').style.visibility = 'hidden';
-    document.getElementById('BotonEntrar').style.visibility = 'visible';
-    // Sign-out successful.
-  }).catch(function (error) {
-    // An error happened.
-  });
-}
-
 document.addEventListener('contextmenu', event => event.preventDefault());
+
