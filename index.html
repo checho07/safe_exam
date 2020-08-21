@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>CUN EXAMENES</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" type="text/css" href="estilo-inicio.css">
+
+  <!--Bootstrap-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+  <!--Firebase-->
+  <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyBxQB4JPpSuCkqJ2q5D9F67uw3_pJpLZOQ",
+      authDomain: "safeexam-473f1.firebaseapp.com",
+      databaseURL: "https://safeexam-473f1.firebaseio.com",
+      projectId: "safeexam-473f1",
+      storageBucket: "safeexam-473f1.appspot.com",
+      messagingSenderId: "246900728093",
+      appId: "1:246900728093:web:78ffd8d96e26a03746c1f4"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-firestore.js"></script>
+
+</head>
+
+<body oncopy="return false" oncut="return false" onpaste="return false"> <!-- Bloqueo de copiar, cortar y pegar -->
+  <nav class="navbar navbar-light bg-light justify-content-center">
+  <a class="navbar-brand" href="#"><p>CUN EXÁMENES</p></a>
+  </nav>
+
+  <div class="container my-4">
+    <div class="text-center">
+      <button id="BotonEntrar" type="button" class="btn btn-success" onclick="AccederConCuentaGoogle()">Acceder con
+        Google</button>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
