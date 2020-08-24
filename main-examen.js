@@ -15,7 +15,7 @@ function TiempoTerminado() {
 }
 
 function Continuar(){
-    setTimeout("TiempoTerminado()", 5000); //30 min = 18000000
+    setTimeout("TiempoTerminado()", 10000); //30 min = 18000000
 
     EliminarContenedor("recuerde");
 
@@ -24,6 +24,19 @@ function Continuar(){
         </div>
         `;*/
 }
+
+var focused = true;
+
+window.onfocus = function() {
+    focused = true;
+    document.body.className = 'focused';
+};
+window.onblur = function() {
+    focused = false;
+    document.body.className = 'blurred';
+    alert("El exámen ha sido cancelado, ha abierto una pestaña o ventana diferente a la del exámen");
+    location.href = "inicio.html";
+};
 
 document.addEventListener('contextmenu', event => event.preventDefault());
 
