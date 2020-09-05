@@ -29,7 +29,7 @@ body {
 }
 
 #recuerde {
-    background-color: #eeeeee;
+    background-color: #e0e0e0;
     padding         : 15px 30px 10px 30px;
     color           : #377244;
     border-radius   : 5px;
@@ -43,7 +43,7 @@ body {
 
 .card {
     padding              : 8px;
-    background-color     : #eeeeee;
+    background-color     : #e0e0e0;
     -webkit-border-radius: 2px;
     -moz-border-radius   : 2px;
     border-radius        : 2px;
@@ -56,8 +56,6 @@ body {
 #quiz-result {
     display      : none;
     margin-bottom: 20px;
-
-
     text-align : center;
     font-family: 'Montserrat', sans-serif;
     font-size  : 16px;
