@@ -1,11 +1,35 @@
 var db = firebase.firestore();
 var coleccion_curso = "curso";
 var coleccion_examenes_asoc = "examenes-asociados";
-var uid, campos, curso, examen, referencia, docRef;
+var email, campos, curso, examen, docRef, tiempoBd;
+var focus = true;
+var referencia = "";
 //Arreglo que asigna la letra correspondiente al orden de cada pregunta generada
-var preguntas = ['a','b','c','d','e','f','g','h','i','j','k','l'];
+var indicadores = ['a','b','c','d','e','f','g','h','i','j','k','l'];
 //Variable en la que se almacenan las respuestas asignadas por el docente
 var respuestas = [];
+
+if (localStorage.getItem("ref") === null) {Volver();}
+else{referencia=localStorage.getItem("ref");} 
+
+function ActualizarDatosUsuario(email_, id_, estado_, nota_) {
+    let datos = db.collection("estudiantes").doc(email_).collection("quiz").doc(id_);
+    return datos.update({
+        activo: estado_,
+        nota: nota_,
+        horaFin: firebase.firestore.Timestamp.now()
+    })
+        .then(function () {
+            //Se elimina el almacenanmiento local y se redirige
+            clearInterval(TiempoRestante);
+            localStorage.removeItem(referencia);
+            setTimeout(function () { location.href = "inicio.html"; }, 5000);
+            console.log("BD actualizada");
+        })
+        .catch(function (error) {
+            console.error("Error actualizando documento: ", error);
+        });
+}
 
 //Función que determina las cantidad de preguntas del exámen y genera código HTML basado
 //en la estrucutura sugerida por la libreria quizlib.js
@@ -17,7 +41,7 @@ function CrearExamen(nombre, arreglo, id, rpta) {
     let preg = "";
     respuestas.push(rpta);
     for (let i = 1; i < arreglo.length - 1; i++) {
-        preg += `<li><label><input type="radio" name="`+id+`" value=` + preguntas[i - 1] + `>` + arreglo[i] + `</label></li>`;
+        preg += `<li><label><input type="radio" name="`+id+`" value=` + indicadores[i - 1] + `>` + arreglo[i] + `</label></li>`;
     }
 
     let contenedor = `
@@ -36,37 +60,35 @@ function CrearExamen(nombre, arreglo, id, rpta) {
 
 }
 
-//Función al ingreso de página que verifica el usuario activo, su id y la bd del exámen a realizar
 firebase.auth().onAuthStateChanged(function (user) {
+    //Si hay usuario activo
     if (user) {
-        uid = user.uid;
-        //Se identifica el doc en la subcolleción examenes-asociados que posee el enlace 
-        //directo a la colección de posee las preguntas del exámen
-        docRef = db.collection(coleccion_examenes_asoc).doc(user.uid).collection("examenes").doc("9E7UEDEZkanqKd36XUrV");
-        
-        docRef.get().then(function (doc) {
+        email = user.email;
+        db.collection("quiz").doc(referencia).get().then(function (doc) {
             if (doc.exists) {
-                campos = doc.data();
-                referencia = campos["referencia"];
-                //Se obtiene la referencia de la colleción del exámen y se redirige a esa base de datos
-                db.doc(referencia).get().then(function (doc_) {
-                    if (doc_.exists) {
-                        var data = doc_.data();
-                        //Ciclo que se repite por cada llave dentro del objeto data que son las preguntas del exámen
-                        for (const prop in data) {
-                            var arreglo = data[prop];
-                            console.log(`obj.${prop} = ${data[prop]}`);
-                            //Se insertan los bloques HTML del quiz junto con las preguntas importadas de firebase
-                            document.getElementById("quiz").innerHTML += CrearExamen(arreglo[0], arreglo, prop, arreglo[arreglo.length-1]);
-                        } document.getElementById("cont").disabled = false;
-                        document.getElementById("cont").style.background = "#44b847";
-                        //Una vez insertado todo el código HTML se habilita el botón continuar
-                    }
-                });
-
+                var dataDoc = doc.data();
+                var preg = dataDoc.preguntas;
+                tiempoBd = dataDoc.tiempo;
+                document.getElementById("titulo").innerHTML = "<h1>"+dataDoc.nombre+"</h1>";
+                //Ciclo que se repite por cada llave dentro del objeto data que son las preguntas del exámen
+                for (const prop in preg) {
+                    var arreglo = preg[prop];
+                    console.log("arr: ", arreglo);
+                    console.log(`obj.${prop} = ${preg[prop]}`);
+                    //Se insertan los bloques HTML del quiz junto con las preguntas importadas de firebase
+                    document.getElementById("quiz").innerHTML += CrearExamen(arreglo[0], arreglo, prop, arreglo[arreglo.length - 1]);
+                } 
+                document.getElementById("cont").disabled = false;
+                document.getElementById("cont").style.background = "#44b847";
+                //Una vez insertado todo el código HTML se habilita el botón continuar
             }
-        });
+        })
     }
+    //Si no hay usuario activo
+    else {
+        Volver();
+    }
+
 });
 
 //Función para eliminar contenedores de códigos HTML por su id
@@ -80,36 +102,26 @@ function EliminarContenedor(id) {
     }
 }
 
-//Función de botón continuar de la alerta incial "recuerde"
-function Continuar() {
-    //Se incia la cuenta regresica actualizando la función cada 1000 milseg, se muestra el contenido del exámen
-    TiempoRestante = setInterval('CuentaRegresiva()', 1000);
-    EliminarContenedor("recuerde");
-    document.getElementById('titulo').style.visibility = 'visible';
-    document.getElementById('quiz').style.visibility = 'visible';
-    document.getElementById('btn-fin').style.visibility = 'visible';
-}
-
 var tiempo_examen;
 function CuentaRegresiva() {
     //Se comprueba que en localStorage en la llave "horaFin" este vacio
-    if (localStorage.getItem("horaFin") === null) {
+    if (localStorage.getItem(referencia) === null) {
         //Se asigna el tiempo de duración del exámen y se calcula a que hora según UTC debe finalizar
-        tiempo_examen = 90;
+        tiempo_examen = tiempoBd;
         var t_miliseg = tiempo_examen * 1000;
         var fecha = Date.now()
         var horaActual = new Date(fecha);
         var horaInicio = horaActual.getTime();
         var horaFin = horaInicio + t_miliseg;
         //Se ingresa en localStorage la hora en que debe finalizar el exámen
-        localStorage.setItem("horaFin", horaFin);
+        localStorage.setItem(referencia, horaFin);
 
     } //Tiempo del exámen en segundos
-    if (localStorage.getItem("horaFin") != null) { 
+    if (localStorage.getItem(referencia) != null) { 
         var horaReingreso = new Date(Date.now());  
-        var tiempo_examen = (localStorage.getItem("horaFin") - horaReingreso.getTime()); 
+        var tiempo_examen = (localStorage.getItem(referencia) - horaReingreso.getTime()); 
     }
-    console.log(localStorage.getItem("horaFin"));
+    console.log("este es: ",localStorage.getItem(referencia));
     //Se pasa el tiempo a segundos
     var tActual = tiempo_examen/1000;
     console.log(tActual);
@@ -125,7 +137,8 @@ function CuentaRegresiva() {
     }
     document.getElementById('countdown').innerHTML = "Tiempo restante: " + hora + ":" + minutos + ":" + segundos;
      //Cuando el tiempo se acaba se hace revisión y se limpia el almacenamiento local
-    if (tActual <= 1) {
+    if (tActual <= 0) {
+        document.getElementById('countdown').innerHTML = "Tiempo finalizado";
         clearInterval(TiempoRestante);
         TiempoTerminado();
     }
@@ -135,7 +148,7 @@ function CuentaRegresiva() {
         window.onblur = function () {
             document.body.className = 'blurred';
             TiempoTerminado();
-            alert("El exámen ha sido cancelado, ha abierto una pestaña o ventana diferente a la del exámen");
+            //alert("El examen ha sido cancelado, ha abierto una pestaña o ventana diferente a la del examen");
         };
 
         //Disminucón unitaria del tiempo cada 1000 milseg, actualización del valor de hora actual en localStorage
@@ -146,92 +159,80 @@ function CuentaRegresiva() {
 }
 var TiempoRestante;
 
+//Función de botón continuar de la alerta incial "recuerde"
+function Continuar() {
+    let datos = db.collection("estudiantes").doc(email).collection("quiz").doc(referencia);
+    if (localStorage.getItem(referencia) == null) {
+        datos.update({
+            horaInicio: firebase.firestore.Timestamp.now()
+        })
+    }
+
+    datos.update({ activo: false, }).then(function () {
+        //Se incia la cuenta regresiva actualizando la función cada 1000 milseg, se muestra el contenido del exámen
+        TiempoRestante = setInterval('CuentaRegresiva()', 1000);
+        EliminarContenedor("recuerde");
+        document.getElementById('titulo').style.visibility = 'visible';
+        document.getElementById('quiz').style.visibility = 'visible';
+        document.getElementById('btn-fin').style.visibility = 'visible';
+    });
+}
+
 //Se ejecuta cuanto la cuenta regresiva llega a 0:00:00
 function TiempoTerminado() {
     //Se limpia el almcenamieto local, se revisa e imprime la nota del exámen y se redirige
-    localStorage.clear();
+    tiempo_examen = 0;
+    localStorage.removeItem(referencia);
     Revision("quiz");
-    setTimeout(function(){ location.href = "inicio.html";}, 5000); 
 }
 
 //Revisión del exámen con funciones de la libreria quizlib
 function Revision() {
-    // checkAnswers retorna true isi todas las pregunsta fueron respondida
     var quiz = new Quiz('quiz', respuestas);
-
+    // checkAnswers retorna true si todas las pregunsta fueron respondida
     if (quiz.checkAnswers(true)) {
         let quizScorePercent = (quiz.result.scorePercentFormatted*5)/100; //Nota
         let quizResultElement = document.getElementById('quiz-result');
         quizResultElement.style.display = 'block';
-        document.getElementById('quiz-score').innerHTML = "Correctas: "+ quiz.result.score.toString()+ " /";
-        document.getElementById('quiz-max-score').innerHTML = quiz.result.totalQuestions.toString() ;
-        document.getElementById('quiz-percent').innerHTML = "Nota: " + quizScorePercent.toString() + " - ";
-        document.getElementById('quiz-mssg').innerHTML = ".";
-
-        // Cambiar color de fondo del resultado
-        if (quizScorePercent >= 3){quizResultElement.style.backgroundColor = '#4caf50';}
-        else {quizResultElement.style.backgroundColor = '#f44336';}
-
+        ActualizarDatosUsuario(email,referencia,false,quizScorePercent.toString());
+        // Bloquear botónn de finalizar
         document.getElementById("fin").disabled = true;
         document.getElementById("fin").style.background = "#c6d4c7";
 
-        //Se elimina el almacenanmiento local y se redirige
-        clearInterval(TiempoRestante);
-        localStorage.clear();
-        setTimeout(function () { location.href = "inicio.html"; }, 5000);
+        if (tiempo_examen !== 0 && document.body.className == 'focused') {
+            quizResultElement.style.backgroundColor = '#4caf50';
+            document.getElementById('quiz-mssg').innerHTML = "Intento finalizado. La nota será publicada luego de la revisión.";
+        } else if(tiempo_examen == 0 && document.body.className == "focused"){
+            quizResultElement.style.backgroundColor = '#f44336';
+            document.getElementById('quiz-mssg').innerHTML = "El tiempo ha terminado. La nota será publicada luego de la revisión.";
+        } else if(tiempo_examen == 0 && document.body.className == 'blurred'){
+            quizResultElement.style.backgroundColor = '#f44336';
+            document.getElementById('quiz-mssg').innerHTML = "El examen ha sido cancelado, ha abierto una pestaña o ventana diferente a la del examen. ";
+        }
 
     //checkAnswers es false cuando faltan preguntas por responder
-    }else if(quiz.checkAnswers(false) && tiempo_examen == 0){
-
+    }else if(quiz.checkAnswers(false)){
         let quizScorePercent = (quiz.result.scorePercentFormatted*5)/100; //Nota
         let quizResultElement = document.getElementById('quiz-result');
         quizResultElement.style.display = 'block';
-        document.getElementById('quiz-score').innerHTML = "Correctas: "+ quiz.result.score.toString()+ " /";
-        document.getElementById('quiz-max-score').innerHTML = quiz.result.totalQuestions.toString() ;
-        document.getElementById('quiz-percent').innerHTML = "Nota: " + quizScorePercent.toString() + " - ";
-        document.getElementById('quiz-mssg').innerHTML = ".";
 
-        // Cambiar color de fondo del resultado
-        if (quizScorePercent >= 3){quizResultElement.style.backgroundColor = '#4caf50';}
-        else {quizResultElement.style.backgroundColor = '#f44336';}
+        if ( tiempo_examen !== 0  && document.body.className == "focused") {
+            quizResultElement.style.backgroundColor = '#deda10';
+            document.getElementById('quiz-mssg').innerHTML = "Faltan preguntas por responder.";
 
-        document.getElementById("fin").disabled = true;
-        document.getElementById("fin").style.background = "#c6d4c7";
+        } else if (tiempo_examen == 0 && document.body.className == "focused") {
+            ActualizarDatosUsuario(email, referencia, false, quizScorePercent.toString());
+            quizResultElement.style.backgroundColor = '#f44336';
+            document.getElementById('quiz-mssg').innerHTML = "El tiempo ha terminado. La nota será publicada luego de la revisión.";
+            document.getElementById("fin").disabled = true;
+            document.getElementById("fin").style.background = "#c6d4c7";
 
-        //Se elimina el almacenanmiento local y se redirige
-        clearInterval(TiempoRestante);
-        localStorage.clear();
-        setTimeout(function () { location.href = "inicio.html"; }, 5000);
-
-    }else{
-        
-        //Caso en que faltan respuestas y se desea terminar el exámen
-        let quizResultElement = document.getElementById('quiz-result');
-        quizResultElement.style.display = 'block';
-        document.getElementById('quiz-mssg').innerHTML = "Faltan preguntas por responder";
-        quizResultElement.style.backgroundColor = '#ffc107';
-    }
-}
-
-// Método para revisión de quiz
-function myHandleAnswerMethod(quiz, question, no, correct) {
-    if (!correct) {
-        var answers = question.getElementsByTagName('input');
-        for (var i = 0; i < answers.length; i++) {
-            if (answers[i].type === "checkbox" || answers[i].type === "radio"){ 
-                // If the current input element is part of the correct answer, highlight it
-                if (quiz.answers[no].indexOf(answers[i].value) > -1) {
-                    answers[i].parentNode.classList.add(Quiz.Classes.CORRECT);
-                }
-            } else {
-                // If the input is anything other than a checkbox or radio button, show the correct answer next to the element
-                var correctAnswer = document.createElement('span');
-                correctAnswer.classList.add(Quiz.Classes.CORRECT);
-                correctAnswer.classList.add(Quiz.Classes.TEMP); // quiz.checkAnswers will automatically remove elements with the temp class
-                correctAnswer.innerHTML = quiz.answers[no];
-                correctAnswer.style.marginLeft = '10px';
-                answers[i].parentNode.insertBefore(correctAnswer, answers[i].nextSibling);
-            }
+        } else if (tiempo_examen == 0 && document.body.className == 'blurred') {
+            ActualizarDatosUsuario(email, referencia, false, quizScorePercent.toString());
+            quizResultElement.style.backgroundColor = '#f44336';
+            document.getElementById('quiz-mssg').innerHTML = "El examen ha sido cancelado, ha abierto una pestaña o ventana diferente a la del examen. ";
+            document.getElementById("fin").disabled = true;
+            document.getElementById("fin").style.background = "#c6d4c7";
         }
     }
 }
@@ -241,7 +242,7 @@ function Volver() {
     location.href = "inicio.html";
 }
 
-//Evento que bloque el click derecho
+//Evento que bloquea el click derecho
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 //Método que verifica si el usuario puede usar localStorage
@@ -253,4 +254,3 @@ document.addEventListener('contextmenu', event => event.preventDefault());
           } else {
             alert("Sorry, your browser does not support Web Storage...");
           }*/
-
