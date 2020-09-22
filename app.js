@@ -1,10 +1,39 @@
-//Verficar si hay sesión iniciada
-VerificarEstado();
-
 //CRUD con Cloud Firestore
 var db = firebase.firestore();
 var coleccion_estudiantes = "estudiantes";
-var documento;
+
+//Método que verifica si el usuario puede usar localStorage
+function verificarCookies(){
+  var cookiesHabilitados = navigator.cookieEnabled;
+  if (!cookiesHabilitados){ 
+      document.cookie = "testcookie";
+      cookiesHabilitados = document.cookie.indexOf("testcookie")!=-1;
+  }
+  return cookiesHabilitados || errorCookies();
+}
+
+function errorCookies(){
+  alert("Lo sentimos, su navegador no soporta el almacenamiento local. "+ 
+  "Verfique en la configuración de su navegador que el uso de cookies este habilitado para este sitio web.");
+}
+verificarCookies();
+
+function VerificarEstado() {
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (user) {
+      console.log("usuario activo")
+      if(ComprobarDominio(email) == true){
+        setTimeout(function () { location.href = "inicio.html"; }, 0)
+      }else{
+        console.log("Usuario incorrecto");
+      }
+    } else {
+      console.log("usuario inactivo")
+    }
+  });
+}
+//Verficar si hay sesión iniciada
+VerificarEstado();
 
 //Función para agregar usuarios a la colección estudiantes 
 function CrearUsuario(email_, nombre_, foto_) {
@@ -49,12 +78,11 @@ function ComprobarDominio(stringemail) {
 //Autenticación con Google
 
 function AccederConCuentaGoogle() {
-
   //Autorización para lectura de datos
   //provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
 
   //Sugiere el ingreso o registro unicamente con correos con dominio cun.edu.co
-  provider.setCustomParameters({ hd: 'cun.edu.co' });
+  provider.setCustomParameters({ prompt: 'select_account', hd: 'cun.edu.co' });
 
   //Ingreso con ventana emergente de Google
   firebase.auth().signInWithPopup(provider).then(function (result) {
@@ -71,26 +99,28 @@ function AccederConCuentaGoogle() {
           if(ActualizarDatosUsuario(coleccion_estudiantes, email, name, photoUrl)){
             VerificarEstado();
           }
-          console.log("El documento ya existia y se actualizo");
+          //console.log("El documento ya existia y se actualizo");
 
         } else {
           //Agregar usuario a la coleccion estudiantes
           if(CrearUsuario(email, name, result.user.photoURL)){
             VerificarEstado();
           }
-          console.log("Correo válido, usuario creado en la colección estudiantes");
+          //console.log("Correo válido, usuario creado en la colección estudiantes");
         }
       });
     }
     
     else {
       alert("El correo ingresado no es de dominio @cun.edu.co. Por favor, ingrese un correo válido. Ejemplo: juan_perez@cun.edu.co");
+      
       var usuarioaEliminar = firebase.auth().currentUser;
       usuarioaEliminar.delete().then(function () {
         //Se elimina el usuario de Auth cuando el correo ingresado no es de dominio CUN
-      }).catch(function (error) {
-        var errorMessg = error.message;
-        console.log("Error al eliminar", errorMessg);
+      })
+      firebase.auth().signOut().then(function () { 
+
+
       });
     }
 
@@ -101,13 +131,3 @@ function AccederConCuentaGoogle() {
   });
 }
 
-function VerificarEstado() {
-  firebase.auth().onAuthStateChanged(function (user) {
-    if (user) {
-      setTimeout(function () { location.href = "inicio.html"; }, 0)
-      console.log("usuario activo")
-    } else {
-      console.log("usuario inactivo")
-    }
-  });
-}
