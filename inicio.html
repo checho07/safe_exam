@@ -32,34 +32,35 @@
 </head>
 
 <body oncopy="return false" oncut="return false" onpaste="return false">
-    <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="#">
-            <h2>CUN EXÁMENES</h2>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
-            aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item active">
-                    <p></p>
-                </li>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="inicio.html">
+                    <img src="https://i0.wp.com/cun.edu.co/wp-content/uploads/2020/05/logo-CUN-blanco.png?fit=153%2C93&ssl=1"
+                        width="90" height="53" alt="">
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <form class="form-inline">
+                    <button id="BotonSalir" type="button" class="btn btn-outline-light" onclick="SalirDeLaCuenta()">Cerrar
+                        Sesión</button>
+                </form>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <button id="BotonSalir" type="button" class="btn btn-outline-primary my-2 my-lg-0"
-                    onclick="SalirDeLaCuenta()">Cerrar
-                    Sesión</button>
-            </form>
         </div>
     </nav>
-
-    <div id="contenedorQuices">
-
-       
+    <div id="titulo">
+        <h5>Exámenes</h5>
+    </div>
+    <div role="alert" class="toast" id="mitoast">
+        <div id="toast-body">
+            Sin conexión a internet
+        </div>
     </div>
 
+    <div id="contenedorQuices">
+       
+    </div>
+   
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
