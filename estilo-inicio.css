@@ -1,46 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans&display=swap');
 
-body{
-    margin: 0;
+body {
+    margin : 0;
     padding: 0;
 }
 
-h2{
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px;
-    margin-bottom: 0;
-    color: black;
+#titulo {
+    margin: 14px 41px 0px 41px;
+    width : 100%;
 }
 
-.card-body h5{
-    font-size: 18px;
+#titulo h5{
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
 }
 
-.navbar{
-    background-color: #e6e6e6;
-    height: 70px;
+.card-body h5 {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    font-size  : 19px;
+    width      : min-content;
 }
 
-.card{
-    cursor: pointer;
-    margin-top: 30px;
+.navbar {
+    background-color: #1f2935;
 }
 
-.card:hover{
-    transform: scale(1.02);
-  }
+.container-fluid{
+    height: 50px;
+}
 
-.card::before, .card::after {
-    position      : absolute;
-    top           : 0;
-    right         : 0;
-    bottom        : 0;
-    left          : 0;
-    transform     : scale3d(0, 0, 1);
-    transition    : transform .1s ease 0s;
-    background    : rgba(255, 255, 255, 0.03);
-    content       : '';
+.card {
+    cursor       : pointer;
+    margin-top   : 15px;
+    margin-bottom: 15px;
+}
+
+.card:hover {
+    transform : scale(1.03);
+    transition: transform .4s ease 0s;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.card::before,
+.card::after {
+    position  : absolute;
+    top       : 0;
+    right     : 0;
+    bottom    : 0;
+    left      : 0;
+    transform : scale3d(0, 0, 1);
+    transition: transform .1s ease 0s;
+    background: rgba(255, 255, 255, 0.03);
+    content   : '';
 }
 
 .card::before {
@@ -57,7 +70,7 @@ h2{
 
 .card p {
     font-family  : 'PT Sans', sans-serif;
-    font-size    : 15px;
+    font-size    : 16px;
     margin-bottom: 0;
 }
 
@@ -67,5 +80,60 @@ h2{
 }
 
 #contenedorQuices {
-    margin: 20px 40px 20px 40px;
+    margin: 8px 40px 20px 40px;
+}
+
+#mitoast {
+    visibility      : hidden;
+    position        : fixed;
+    z-index         : 1;
+    right           : 25%;
+    top             : 90%;
+    border          : 1px solid rgba(0, 0, 0, .1);
+    border-radius   : .25rem;
+    box-shadow      : 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
+    max-width       : 50%;
+    width           : 50%;
+    height          : auto;
+    opacity         : 1;
+    color           : white;
+    background-color: #dc3545;
+    padding         : 0;
+    margin          : 0;
+}
+
+#toast-body {
+    margin    : 3px;
+    text-align: center;
+}
+   
+#mitoast.mostrar {
+    visibility       : visible;
+    -webkit-animation: fadein 0.5s;
+    animation        : fadein 0.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {right  : 0; opacity: 0;}
+    to {right  : 25%; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {right  : 0; opacity: 0;}
+    to {right  : 25%; opacity: 1;}
+}
+
+#mitoast.cerrar {
+  -webkit-animation: fadeout 0.5s 4.8s;
+  animation: fadeout 0.5s 4.8s;
+}
+ 
+@-webkit-keyframes fadeout {
+  from {right: 25%; opacity: 1;} 
+  to {right: 0; opacity: 0;}
+}
+ 
+@keyframes fadeout {
+  from {right: 25%; opacity: 1;}
+  to {right: 0; opacity: 0;}
 }
