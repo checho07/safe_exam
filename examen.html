@@ -26,12 +26,12 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-firestore.js"></script>
 </head>
 
-<body class="focused" oncopy="return false" oncut="return false" onpaste="return false">
+<body class="focused"  oncopy="return false" oncut="return false" onpaste="return false">
 
     <div id="recuerde">
         <h2>Recuerde!</h2>
-        <p>Al presionar continuar estará ingresando al examen, una vez dé inicio se le solicita no abrir otras 
-            pestañas ni otros programas diferentes al navegador actual ya que esto 
+        <p>Al presionar continuar estará ingresando al examen, una vez dé inicio no debe abrir otras
+            pestañas ni otros programas diferentes al navegador actual ya que esto
             ocasionaría la cancelación y cierre del examen.
         </p>
         <hr>
@@ -39,8 +39,17 @@
         <button id="cont" class="button button2" disabled="disabled" onclick="Continuar()">Continuar</button>
     </div>
 
-    <div id="titulo">
-        
+    <div id="cover-loader">
+        <div class="flex-container">
+            <div class="loader"></div>
+        </div>
+    </div>
+
+
+    <div class="flex-container">
+        <div id="titulo">
+
+        </div>
     </div>
 
     <div class="tiempo">
@@ -60,6 +69,10 @@
         <button id="fin" type="button" class="button button3" onclick="Revision(`quiz`);">Finalizar intento</button>
     </div>
 
+    <div id="toast"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
     <script type="text/javascript" src="quizlib.1.0.1.min.js"></script>
     <script type="text/javascript" src="main-examen.js"></script>
 </body>
