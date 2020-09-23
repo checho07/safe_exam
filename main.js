@@ -86,7 +86,7 @@ function Card(asign, fechaf, nomb, nota, estado, color, dir, epoch) {
     let codigoCard = `
     <div class="col-md-4 col-sm-6 col-lg-3 item d-flex align-items-stretch">
       <div class="card" `+ dir + `">
-        <img class="card-img-top" src="https://picsum.photos/400/300?random" alt="Card image cap">
+        <img class="card-img-top" src="https://picsum.photos/600/300?random=`+ (Math.floor(Math.random() * 6) + 1) +`" alt="Card image cap">
           <div class="card-body">
             <h5 class="card-title">`+ asign + `</h5>
             <p class="card-text">`+ nomb + `</p>
